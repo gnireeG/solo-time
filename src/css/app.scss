@@ -1,1 +1,15 @@
 // app global css in SCSS form
+.nav-link{
+    display: block;
+    font-size: 1.2rem;
+    color: initial;
+    padding: 0.2rem 0.5rem;
+
+    &:hover{
+        color: $primary;
+    }
+
+    &.router-link-exact-active{
+        color: $primary;
+    }
+}

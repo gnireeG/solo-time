@@ -31,11 +31,7 @@
           Essential Links
         </q-item-label>
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <RouterLink class="nav-link" v-for="link in linksList" :key="link.title" :to="link.link"><q-icon :name="link.icon" />{{ link.title }}</RouterLink>
       </q-list>
     </q-drawer>
 
@@ -47,50 +43,22 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
 
-const linksList: EssentialLinkProps[] = [
+const linksList: Array<{title: string, link: string, icon: string}> = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
+    title: 'Home',
+    icon: 'home',
+    link: '/'
+  },
+  {
+    title: 'Clients',
     icon: 'school',
-    link: 'https://quasar.dev'
+    link: '/clients'
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
+    title: 'Projects',
+    icon: 'work',
+    link: '/projects'
   }
 ];
 
