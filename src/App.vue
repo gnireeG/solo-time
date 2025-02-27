@@ -6,9 +6,10 @@
 import { onMounted } from 'vue';
 import { useDBStore } from './stores/db-store';
 const db = useDBStore();
-onMounted(() => {
-  db.initDB();
-});
+onMounted(async ()=>{
+  await db.loadClients();
+  await db.loadProjects();
+})
 </script>
 <style lang="scss" scoped>
 .main{

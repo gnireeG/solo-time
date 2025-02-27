@@ -1,8 +1,15 @@
 <template>
     <q-page>
-        <h3>Clients page</h3>
+        <h3>All clients</h3>
         <div class="button-container"><q-btn round color="primary" icon="add" @click="showNewClientDialog = true"/></div>
-        <q-table v-if="clients" :rows="clients"  />
+        <q-table v-if="clients" :rows="clients">
+            <template v-slot:body="props">
+                <q-tr :props="props">
+                    <q-td>{{ props.row.id }}</q-td>
+                    <q-td><router-link :to="'/clients/'+props.row.id">{{props.row.name}}</router-link></q-td>
+                </q-tr>
+            </template>
+        </q-table>
         <q-dialog v-model="showNewClientDialog">
             <q-card>
                 <q-card-section class="row items-center q-pb-none">
@@ -14,8 +21,6 @@
                 <q-card-section>
                     <form @submit.prevent.stop="onSubmitNewClient">
                         <q-input v-model="newClientForm.name" label="Name" />
-                        <q-input v-model="newClientForm.email" label="Email" type="email" />
-                        <q-input v-model="newClientForm.phone" label="Phone" type="tel" />
                         <q-btn label="Submit" type="submit" color="primary" />
                     </form>
                 </q-card-section>
@@ -24,26 +29,24 @@
     </q-page>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useDBStore } from 'src/stores/db-store';
+import type { Client } from 'src/models/Client';
+//import type { Client } from 'src/classes/db';
 
 const db = useDBStore();
 
-const clients = ref(useDBStore().$state.clients)
+const clients = computed(() => db.clients)
 const showNewClientDialog = ref(false)
 const newClientForm = ref({
-    name: '',
-    email: '',
-    phone: ''
+    name: ''
 })
 
-function onSubmitNewClient():void {
-    db.addClient(newClientForm.value)
+async function onSubmitNewClient():Promise<void> {
+    await db.addClient({name: newClientForm.value.name} as Client)
     showNewClientDialog.value = false
     newClientForm.value = {
         name: '',
-        email: '',
-        phone: ''
     }
 }
 
