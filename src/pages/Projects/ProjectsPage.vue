@@ -1,49 +1,102 @@
 <template>
-    <h3>Projects page</h3>
-    <q-btn icon="add" @click="showNewProjectDialog = true">Add project</q-btn>
-    <q-table :rows="projects" :columns="columns">
-        <template v-slot:body="props">
-            <q-tr :props="props">
-                <q-td>{{ props.row.id }}</q-td>
-                <q-td><router-link :to="'/projects/'+props.row.id">{{props.row.name}}</router-link></q-td>
-                <q-td><router-link :to="'/clients/'+props.row.clientId">{{getClientName(props.row.clientId)}}</router-link></q-td>
-            </q-tr>
-        </template>
-    </q-table>
-    <q-dialog v-model="showNewProjectDialog">
-        <q-card>
-            <q-card-section class="row items-center q-pb-none">
-                <div class="text-h6">Add new project</div>
-                <q-space />
-                <q-btn icon="close" flat round dense v-close-popup />
-            </q-card-section>
+    <q-page>
+        <h3>Projects page</h3>
+        <q-table :rows="filteredProjects" :columns="columns" :filter="filter">
+            <template v-slot:top>
+                    <div class="row w-full justify-between">
+                        <div class="row q-gutter-md">
+                            <q-input v-model="filter" debounce="300" placeholder="Search" label="Search" />
+                            <q-select v-model="selectedState" :options="stateOptions" label="State" emit-value map-options />
+                        </div>
+                        <div>
+                            <q-btn color="primary" label="New" @click="showNewProjectDialog = true" />
+                        </div>
+                    </div>
+                </template>
+            <template v-slot:body="props">
+                <q-tr :props="props">
+                    <q-td><router-link class="text-link" :to="'/projects/'+props.row.id">{{props.row.name}}</router-link></q-td>
+                    <q-td><router-link class="text-link" :to="'/clients/'+props.row.clientId">{{getClientName(props.row.clientId)}}</router-link></q-td>
+                    <q-td>{{ props.row.state }}</q-td>
+                    <q-td><FormattedDate :date="props.row.startDate" /></q-td>
+                    <q-td><FormattedDate :date="props.row.endDate" /></q-td>
+                </q-tr>
+            </template>
+        </q-table>
+        <q-dialog v-model="showNewProjectDialog">
+            <q-card>
+                <q-card-section class="row items-center q-pb-none">
+                    <div class="text-h6">Add new project</div>
+                    <q-space />
+                    <q-btn icon="close" flat round dense v-close-popup />
+                </q-card-section>
 
-            <q-card-section>
-                <form @submit.prevent.stop="onSubmitNewProject">
-                    <q-input v-model="newProjectName" label="Name" />
-                    <q-select
-                        v-model="newProjectClient"
-                        use-input
-                        hide-selected
-                        fill-input
-                        input-debounce="0"
-                        :options="clientOptions"
-                        @filter="filterFn"
-                        style="width: 250px; padding-bottom: 32px"
-                    >
-                        <template v-slot:no-option>
-                            <q-item>
-                                <q-item-section class="text-grey">
-                                    No results
-                                </q-item-section>
-                            </q-item>
-                        </template>
-                    </q-select>
-                    <q-btn label="Submit" type="submit" color="primary" />
-                </form>
-            </q-card-section>
-        </q-card>
-    </q-dialog>
+                <q-card-section>
+                    <form @submit.prevent.stop="onSubmitNewProject">
+                        <div class="row  q-gutter-md">
+                            <div class="col">
+                                <q-input v-model="newProjectName" label="Name" />
+                                
+                                
+                                <q-input v-model="newProjectStartDate" mask="date" :rules="['date']" label="Start date">
+                                    <template v-slot:append>
+                                        <q-icon name="event" class="cursor-pointer">
+                                        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                            <q-date v-model="newProjectStartDate">
+                                            <div class="row items-center justify-end">
+                                                <q-btn v-close-popup label="Close" color="primary" flat />
+                                            </div>
+                                            </q-date>
+                                        </q-popup-proxy>
+                                        </q-icon>
+                                    </template>
+                                </q-input>
+                                <q-select
+                                    v-model="newProjectClient"
+                                    use-input
+                                    hide-selected
+                                    fill-input
+                                    input-debounce="0"
+                                    :options="clientOptions"
+                                    @filter="filterFn"
+                                    style="width: 250px; padding-bottom: 32px"
+                                    label="Client"
+                                >
+                                    <template v-slot:no-option>
+                                        <q-item>
+                                            <q-item-section class="text-grey">
+                                                No results
+                                            </q-item-section>
+                                        </q-item>
+                                    </template>
+                                </q-select>
+                            </div>
+                            <div class="col">
+                                <q-select class="w-full" v-model="newProjectState" label="State" :options="['planning', 'active', 'completed']" />
+                                <q-input v-model="newProjectEndDate" mask="date" :rules="['date']" label="End date">
+                                    <template v-slot:append>
+                                        <q-icon name="event" class="cursor-pointer">
+                                        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                            <q-date v-model="newProjectEndDate">
+                                            <div class="row items-center justify-end">
+                                                <q-btn v-close-popup label="Close" color="primary" flat />
+                                            </div>
+                                            </q-date>
+                                        </q-popup-proxy>
+                                        </q-icon>
+                                    </template>
+                                </q-input>
+                                
+                            </div>
+                        </div>
+
+                        <q-separator class="q-my-md" />
+                        <q-btn label="Submit" type="submit" color="primary" />
+                    </form>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
+    </q-page>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +105,8 @@ import { useDBStore } from 'src/stores/db-store';
 import type { Project } from 'src/models/Project';
 import type { Client } from 'src/models/Client';
 
+import FormattedDate from 'src/components/FormattedDate.vue';
+
 const db = useDBStore();
 
 const projects = computed(() => db.projects);
@@ -59,21 +114,43 @@ const projects = computed(() => db.projects);
 const clients = ref<Client[] | null>(null);
 const clientOptions = ref<{ label: string, value: string | undefined }[]>([]);
 
+const filter = ref('');
+
+const selectedState = ref('active');
+const stateOptions = [
+    { label: 'All', value: '' },
+    { label: 'Planning', value: 'planning' },
+    { label: 'Active', value: 'active' },
+    { label: 'Completed', value: 'completed' },
+];
+
+const filteredProjects = computed(() => {
+    return projects.value.filter(project => {
+        const matchesState = selectedState.value === '' || project.state === selectedState.value;
+        const matchesFilter = filter.value === '' || project.name.toLowerCase().includes(filter.value.toLowerCase());
+        return matchesState && matchesFilter;
+    });
+});
+
 const columns = [
-    { name: 'id', label: 'ID', align: 'left' as const, field: 'id' },
-    { name: 'name', label: 'Name', align: 'left' as const, field: 'name' },
-    { name: 'client', label: 'Client', align: 'left' as const, field: 'clientId' },
+    { sortable: true, name: 'name', label: 'Name', align: 'left' as const, field: 'name' },
+    { sortable: true, name: 'client', label: 'Client', align: 'left' as const, field: 'clientId' },
+    { sortable: true, name: 'state', label: 'State', align: 'left' as const, field: 'state' },
+    { sortable: true, name: 'startDate', label: 'Start date', align: 'left' as const, field: 'startDate' },
+    { sortable: true, name: 'endDate', label: 'End date', align: 'left' as const, field: 'endDate' },
 ];
 
 onMounted(() => {
     clients.value = db.clients;
     clientOptions.value = clients.value?.filter(c => c.id !== undefined).map(c => ({ label: c.name, value: c.id?.toString() })) || [];
-    console.log(clientOptions.value)
 });
 
 const showNewProjectDialog = ref(false);
 const newProjectName = ref('');
 const newProjectClient = ref()
+const newProjectState = ref('planning');
+const newProjectStartDate = ref('');
+const newProjectEndDate = ref('');
 
 function filterFn(val: string, update: (callback: () => void) => void) {
     update(() => {
@@ -86,10 +163,25 @@ function filterFn(val: string, update: (callback: () => void) => void) {
 }
 
 async function onSubmitNewProject(): Promise<void> {
-    await db.addProject({ name: newProjectName.value, clientId: newProjectClient.value.value } as Project);
+    const newProject:Project =  {
+        name: newProjectName.value,
+        clientId: newProjectClient.value.value,
+        state: newProjectState.value as 'planning' | 'active' | 'completed'
+    };
+
+    if(newProjectStartDate.value.length > 0) newProject.startDate = new Date(newProjectStartDate.value);
+    if(newProjectEndDate.value.length > 0) newProject.endDate = new Date(newProjectEndDate.value);
+    await db.addProject(newProject);
+    clearNewProjectForm();
     showNewProjectDialog.value = false;
+}
+
+function clearNewProjectForm(){
     newProjectName.value = '';
     newProjectClient.value = undefined;
+    newProjectState.value = 'planning';
+    newProjectStartDate.value = '';
+    newProjectEndDate.value = '';
 }
 
 function getClientName(id:string){

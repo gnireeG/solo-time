@@ -12,10 +12,17 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          <RouterLink to="/">Authless timetracking</RouterLink>
         </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          <q-toggle
+            v-model="isDark"
+            checked-icon="dark_mode"
+            color="orange"
+            unchecked-icon="light_mode"
+            @update:model-value="$q.dark.toggle()"
+          />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -28,10 +35,9 @@
         <q-item-label
           header
         >
-          Essential Links
+          Menu
         </q-item-label>
-
-        <RouterLink class="nav-link" v-for="link in linksList" :key="link.title" :to="link.link"><q-icon :name="link.icon" />{{ link.title }}</RouterLink>
+        <NavLink v-for="link in linksList" :key="link.title" :link="link" />
       </q-list>
     </q-drawer>
 
@@ -43,25 +49,24 @@
 
 <script setup lang="ts">
 import { ref,  } from 'vue';
+import NavLink from 'src/components/NavLink.vue';
 
-
-const linksList: Array<{title: string, link: string, icon: string}> = [
+const linksList: Array<{title: string, link: string, icon?: string}> = [
   {
-    title: 'Home',
-    icon: 'home',
+    title: 'Dashboard',
     link: '/'
   },
   {
     title: 'Clients',
-    icon: 'school',
     link: '/clients'
   },
   {
     title: 'Projects',
-    icon: 'work',
     link: '/projects'
   }
 ];
+
+const isDark = ref(false)
 
 const leftDrawerOpen = ref(false);
 

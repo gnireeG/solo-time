@@ -3,6 +3,7 @@ import type {Client} from '../models/Client';
 import type {Project} from '../models/Project';
 import type {Task} from '../models/Task';
 import type { Timeentry } from 'src/models/Timeentry';
+import type { Contact } from 'src/models/Contact';
 
 const db = new Dexie('SoloTime') as Dexie & {
     clients: EntityTable<Client, 'id'>;
@@ -11,12 +12,12 @@ const db = new Dexie('SoloTime') as Dexie & {
     timeEntries: EntityTable<Timeentry, 'id'>;
 }
 
-db.version(3).stores({
+db.version(4).stores({
     clients: '++id',
     projects: '++id, clientId',
     tasks: '++id, projectId',
     timeEntries: '++id, taskId'
 })
 
-export type {Client, Project, Task, Timeentry};
+export type {Client, Project, Task, Timeentry, Contact};
 export { db };

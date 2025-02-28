@@ -26,8 +26,12 @@ export const useDBStore = defineStore('db-store', {
         }
     },
     async addClient(client: Client){
+      const newClient: Client = client;
+      if(!newClient.contacts){
+        newClient.contacts = [];
+      }
       try{
-        await db.clients.add(client);
+        await db.clients.add(newClient);
         await this.loadClients();
       }
       catch(err){
@@ -38,12 +42,13 @@ export const useDBStore = defineStore('db-store', {
       return this.clients.find(client => client.id === id);
     },
     async updateClient(client: Client){
-      await db.clients.update(client.id, client);
+      await db.clients.update(client.id, { ...client });
       await this.loadClients();
     },
     async addProject(project: Project){
+      const newProject = {...project};
       try{
-        await db.projects.add(project);
+        await db.projects.add(newProject);
         await this.loadProjects();
       }
       catch(err){

@@ -1,12 +1,16 @@
 <template>
     <q-page>
         <h3>All clients</h3>
-        <div class="button-container"><q-btn round color="primary" icon="add" @click="showNewClientDialog = true"/></div>
         <q-table v-if="clients" :rows="clients">
+            <template v-slot:top>
+                <div class="row w-full justify-end">
+                    <q-btn color="primary" label="New" @click="showNewClientDialog = true" />
+                </div>
+            </template>
             <template v-slot:body="props">
                 <q-tr :props="props">
                     <q-td>{{ props.row.id }}</q-td>
-                    <q-td><router-link :to="'/clients/'+props.row.id">{{props.row.name}}</router-link></q-td>
+                    <q-td><router-link class="text-link" :to="'/clients/'+props.row.id">{{props.row.name}}</router-link></q-td>
                 </q-tr>
             </template>
         </q-table>
