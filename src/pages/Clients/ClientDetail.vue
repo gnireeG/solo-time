@@ -10,10 +10,9 @@
             <q-tab name="projects" :label="'Projects ('+projects.length+')'" />
             <q-tab v-if="client" name="contacts" :label="'Contacts ('+client.contacts.length+')'" />
         </q-tabs>
-        <q-tab-panels v-model="tab">
+        <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="projects">
-                <q-table :rows="projects">
-                </q-table>
+                <ProjectsTable :projects="projects" :defaultClientId="id" />
             </q-tab-panel>
             <q-tab-panel name="contacts">
                 <q-table v-if="client" :rows="client.contacts">
@@ -71,8 +70,13 @@
 import { onMounted, ref, computed } from 'vue';
 import { useDBStore } from 'src/stores/db-store';
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 
 import type { Client } from 'src/models/Client';
+
+import ProjectsTable from 'src/components/ProjectsTable.vue';
+
+const $q = useQuasar();
 
 const router = useRouter();
 const idParam = router.currentRoute.value.params.id;
@@ -126,6 +130,12 @@ async function onSubmit(): Promise<void> {
     if (!client.value) return;
     await db.updateClient({ name: client.value.name, id: client.value.id } as Client);
     fetchClientFromStore();
+    $q.notify({
+        message: 'Client saved',
+        color: 'positive',
+        position: 'bottom-right',
+        icon: 'check'
+    })
 }
 
 function clearForm() {

@@ -1,7 +1,7 @@
 <template>
     <q-page>
         <h3>All clients</h3>
-        <q-table v-if="clients" :rows="clients">
+        <q-table v-if="clients" :rows="clients" :columns="columns">
             <template v-slot:top>
                 <div class="row w-full justify-end">
                     <q-btn color="primary" label="New" @click="showNewClientDialog = true" />
@@ -36,9 +36,10 @@
 import { ref, computed } from 'vue';
 import { useDBStore } from 'src/stores/db-store';
 import type { Client } from 'src/models/Client';
-//import type { Client } from 'src/classes/db';
+import { useQuasar } from 'quasar';
 
 const db = useDBStore();
+const $q = useQuasar();
 
 const clients = computed(() => db.clients)
 const showNewClientDialog = ref(false)
@@ -49,10 +50,35 @@ const newClientForm = ref({
 async function onSubmitNewClient():Promise<void> {
     await db.addClient({name: newClientForm.value.name} as Client)
     showNewClientDialog.value = false
+    $q.notify({
+        type: 'positive',
+        message: 'Client added',
+        icon: 'check',
+        position: 'bottom-right'
+    })
     newClientForm.value = {
         name: '',
     }
 }
+
+const columns = [
+    {
+        name: 'id',
+        required: true,
+        label: 'ID',
+        align: 'left' as const,
+        sortable: true,
+        field: 'id'
+    },
+    {
+        name: 'name',
+        required: true,
+        label: 'Name',
+        align: 'left' as const,
+        sortable: true,
+        field: 'name'
+    }
+]
 
 
 </script>
