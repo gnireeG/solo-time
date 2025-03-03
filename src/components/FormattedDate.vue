@@ -4,7 +4,7 @@
 <script setup lang="ts">
 defineProps({
     date:{
-        type: Date,
+        type: String,
     }
 })
 </script>

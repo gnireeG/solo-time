@@ -5,10 +5,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: '/clients', component: () => import('pages/Clients/ClientIndex.vue') },
-      { path: '/clients/:id', component: () => import('pages/Clients/ClientDetail.vue') },
-      { path: '/projects', component: () => import('src/pages/Projects/ProjectsPage.vue') },
+      { path: '', component: () => import('pages/IndexPage.vue'), name:"index" },
+      { path: '/clients', component: () => import('pages/Clients/ClientIndex.vue'), name:'clients.index' },
+      { path: '/clients/:id', component: () => import('pages/Clients/ClientDetail.vue'), name:'clients.detail' },
+      { path: '/projects', component: () => import('src/pages/Projects/ProjectsPage.vue'), name: 'projects.index' },
+      { path: '/projects/:id', component: () => import('src/pages/Projects/ProjectDetail.vue'), name: 'projects.detail' },
     ],
   },
 

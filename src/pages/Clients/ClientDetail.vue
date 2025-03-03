@@ -1,5 +1,10 @@
 <template>
     <q-page>
+        <q-breadcrumbs>
+            <q-breadcrumbs-el label="Home" :to="{name: 'index'}" />
+            <q-breadcrumbs-el label="Clients" :to="{name: 'clients.index'}" />
+            <q-breadcrumbs-el :label="client ? client.name : 'Client'" />
+        </q-breadcrumbs>
         <h3 v-if="client">{{ client.name }}</h3>
         <form v-if="client" @submit.prevent.stop="onSubmit">
             <q-input v-model="client.name" label="Name" />
@@ -10,15 +15,16 @@
             <q-tab name="projects" :label="'Projects ('+projects.length+')'" />
             <q-tab v-if="client" name="contacts" :label="'Contacts ('+client.contacts.length+')'" />
         </q-tabs>
-        <q-tab-panels v-model="tab" animated>
+        <q-tab-panels v-model="tab">
             <q-tab-panel name="projects">
                 <ProjectsTable :projects="projects" :defaultClientId="id" />
             </q-tab-panel>
             <q-tab-panel name="contacts">
-                <q-table v-if="client" :rows="client.contacts">
+                <q-table v-if="client" :rows="client.contacts" :filter="filterContacts">
                     <template v-slot:top>
-                        <div class="row justify-end w-full">
-                            <q-btn label="New" color="primary" @click="showNewContactDialog = true" />
+                        <div class="row justify-between w-full">
+                            <q-input v-model="filterContacts" dense label="Search" />
+                            <div><q-btn label="New" color="primary" @click="showNewContactDialog = true" /></div>
                         </div>
                     </template>
                     <template v-slot:body="props">
@@ -57,7 +63,7 @@
                         <q-separator class="q-my-md" />
                         <div class="row w-full justify-end q-gutter-md">
                             <q-btn label="Cancel" color="secondary" @click="clearAndCloseDialog()" />
-                            <q-btn label="Submit" type="submit" color="primary" />
+                            <q-btn label="Save" type="submit" color="primary" />
                         </div>
                     </form>
                 </q-card-section>
@@ -77,6 +83,8 @@ import type { Client } from 'src/models/Client';
 import ProjectsTable from 'src/components/ProjectsTable.vue';
 
 const $q = useQuasar();
+
+const filterContacts = ref('');
 
 const router = useRouter();
 const idParam = router.currentRoute.value.params.id;
@@ -99,14 +107,10 @@ async function onSubmitNewContact() {
         ...client.value.contacts,
         { ...newClientForm.value }
     ];
-    console.log({
-        ...client.value,
-        contacts: updatedContacts
-    });
     if (!client.value.id) return;
     await db.updateClient({
         ...client.value,
-        contacts: JSON.parse(JSON.stringify(updatedContacts)) // Ensure contacts are serializable
+        contacts: JSON.parse(JSON.stringify(updatedContacts)) // Ensure contacts are serialized
     });
     fetchClientFromStore();
     clearAndCloseDialog();

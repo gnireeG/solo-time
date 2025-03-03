@@ -4,6 +4,6 @@ export interface Project {
     clientId: number;
     description?: string;
     state: 'planning' | 'active' | 'completed';
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: string;
+    endDate?: string;
 }

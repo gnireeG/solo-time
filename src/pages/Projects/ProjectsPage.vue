@@ -1,5 +1,9 @@
 <template>
     <q-page>
+        <q-breadcrumbs>
+            <q-breadcrumbs-el label="Home" :to="{name: 'index'}" icon="home" />
+            <q-breadcrumbs-el label="Projects" />
+        </q-breadcrumbs>
         <h3>Projects page</h3>
         <ProjectsTable :projects="projects" defaultState="active" />
     </q-page>

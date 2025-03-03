@@ -1,10 +1,15 @@
 <template>
     <q-page>
+        <q-breadcrumbs>
+            <q-breadcrumbs-el label="Home" :to="{name: 'index'}" />
+            <q-breadcrumbs-el label="Clients" />
+        </q-breadcrumbs>
         <h3>All clients</h3>
-        <q-table v-if="clients" :rows="clients" :columns="columns">
+        <q-table v-if="clients" :rows="clients" :columns="columns" :filter="filter">
             <template v-slot:top>
-                <div class="row w-full justify-end">
-                    <q-btn color="primary" label="New" @click="showNewClientDialog = true" />
+                <div class="row w-full justify-between">
+                    <q-input v-model="filter" label="Search" dense debounce="300" />
+                    <div><q-btn color="primary" label="New" @click="showNewClientDialog = true" /></div>
                 </div>
             </template>
             <template v-slot:body="props">
@@ -36,10 +41,8 @@
 import { ref, computed } from 'vue';
 import { useDBStore } from 'src/stores/db-store';
 import type { Client } from 'src/models/Client';
-import { useQuasar } from 'quasar';
 
 const db = useDBStore();
-const $q = useQuasar();
 
 const clients = computed(() => db.clients)
 const showNewClientDialog = ref(false)
@@ -50,12 +53,6 @@ const newClientForm = ref({
 async function onSubmitNewClient():Promise<void> {
     await db.addClient({name: newClientForm.value.name} as Client)
     showNewClientDialog.value = false
-    $q.notify({
-        type: 'positive',
-        message: 'Client added',
-        icon: 'check',
-        position: 'bottom-right'
-    })
     newClientForm.value = {
         name: '',
     }
@@ -68,7 +65,9 @@ const columns = [
         label: 'ID',
         align: 'left' as const,
         sortable: true,
-        field: 'id'
+        field: 'id',
+        style: 'width: 50px',
+        headerStyle: 'width: 50px',
     },
     {
         name: 'name',
@@ -76,9 +75,11 @@ const columns = [
         label: 'Name',
         align: 'left' as const,
         sortable: true,
-        field: 'name'
+        field: 'name',
     }
 ]
+
+const filter = ref('')
 
 
 </script>
