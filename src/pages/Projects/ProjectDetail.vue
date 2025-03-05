@@ -25,10 +25,17 @@
                 <InputDate v-model="projectForm.endDate" label="End date" />
             </div>
         </div>
-        <InputWysiwyg v-model="projectForm.description" label="Description" class="q-mb-md" />
-        <pre v-html="projectForm.description"></pre>
+        <q-toggle v-model="showDescriptionEdit" label="Edit description" />
+        <InputWysiwyg v-if="showDescriptionEdit" v-model="projectForm.description" label="Description" class="q-mb-md" />
+        <div v-if="!showDescriptionEdit" class="project-description" v-html="projectForm.description"></div>
         <q-btn label="Save" type="submit" color="primary" />
     </form>
+    <div>
+        <h5>Tasks</h5>
+        <TaskAdder :projectId="id" />
+        <q-input v-model="newTaskForm.name" label="Name" @keydown.enter.prevent="addTask" />
+        <div>{{ tasks }}</div>
+    </div>
 </template>
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
@@ -39,6 +46,9 @@ import InputDate from 'src/components/InputDate.vue';
 import SelectClient from 'src/components/SelectClient.vue';
 import InputWysiwyg from 'src/components/InputWysiwyg.vue';
 
+import type { Task } from 'src/models/Task';
+import TaskAdder from 'src/components/TaskAdder.vue';
+
 const db = useDBStore();
 
 const route = useRoute()
@@ -46,6 +56,10 @@ const idParam = route.params.id;
 const id = idParam ? parseInt(idParam as string) : NaN;
 
 const project = computed(( )=> db.projects.find(p => p.id == id));
+
+const tasks = ref<Task[]>([]);
+
+const showDescriptionEdit = ref(false)
 
 const projectForm = ref({
     id: 0,
@@ -57,9 +71,16 @@ const projectForm = ref({
     endDate: ''
 })
 
+const newTaskForm = ref<Task>({
+    projectId: id,
+    name: '',
+    description: '',
+    completed: false,
+})
+
 const stateOptions = ['planning', 'active', 'completed'];
 
-onMounted(() =>{
+onMounted(async () =>{
     projectForm.value.id = parseInt(project.value?.id?.toString() ?? '0');
     projectForm.value.clientId = project.value?.clientId || 0;
     projectForm.value.name = project.value?.name || '';
@@ -68,11 +89,21 @@ onMounted(() =>{
     projectForm.value.startDate = project.value?.startDate || '';
     projectForm.value.endDate = project.value?.endDate || '';
     
+    await loadTasks();
 })
+
+async function loadTasks(){
+    tasks.value = await db.getTasksByProjectId(project.value?.id || 0);
+}
 
 const onSaveProject = async () =>{
     if(!project.value) return;
     await db.updateProject(projectForm.value)
+}
+
+async function addTask(){
+    await db.addTask({...newTaskForm.value});
+    await loadTasks();
 }
 
 </script>

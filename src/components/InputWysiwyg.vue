@@ -1,16 +1,11 @@
 <template>
-    <div class="q-pa-md q-gutter-sm">
+    <div class="q-gutter-sm">
         <q-editor
         v-model="content"
         :dense="$q.screen.lt.md"
         :toolbar="[
             [
-            {
-                icon: $q.iconSet.editor.align,
-                list: 'only-icons',
-                options: ['left', 'center', 'right', 'justify'],
-            },
-            'bold', 'italic', 'underline', 'token', 'hr', 'link', 'custom_btn'
+            'bold', 'italic', 'underline', 'strikethrough', 'link'
             ],
             [
             {
@@ -44,26 +39,8 @@
                 'size-7'
                 ]
             },
-            {
-                label: $q.lang.editor.defaultFont,
-                icon: $q.iconSet.editor.font,
-                fixedIcon: true,
-                list: 'no-icons',
-                options: [
-                'default_font',
-                'arial',
-                'arial_black',
-                'comic_sans',
-                'courier_new',
-                'impact',
-                'lucida_grande',
-                'times_new_roman',
-                'verdana'
-                ]
-            },
-            'removeFormat'
             ],
-            ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+            ['unordered', 'ordered'],
 
             ['undo', 'redo'],
             ['viewsource', 'fullscreen']

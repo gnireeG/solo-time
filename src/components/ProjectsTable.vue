@@ -22,7 +22,7 @@
         </template>
     </q-table>
     <q-dialog v-model="showNewProjectDialog">
-        <q-card>
+        <q-card style="width: 1200px; max-width: 100vw;">
             <q-card-section class="row items-center q-pb-none">
                 <div class="text-h6">Add new project</div>
                 <q-space />

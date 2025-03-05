@@ -10,7 +10,7 @@ a{
     color: inherit;
 }
 
-a.text-link{
+a.text-link, .project-description a{
     color: $primary;
     text-decoration: none;
     transition: color 0.3s;

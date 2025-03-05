@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { db } from 'src/classes/db';
-import type { Client, Project } from 'src/classes/db';
+import type { Client, Project, Task } from 'src/classes/db';
 import { useQuasar } from 'quasar';
 
 export const useDBStore = defineStore('db-store', {
@@ -12,27 +12,27 @@ export const useDBStore = defineStore('db-store', {
 
   actions: {
     async loadClients() {
-      try{
+      try {
         this.clients = await db.clients.toArray();
       }
-      catch(err){
+      catch (err) {
         console.error(err)
       }
     },
-    async loadProjects(){
-        try{
-          this.projects = await db.projects.toArray();
-        }
-        catch(err){
-          console.error(err);
-        }
+    async loadProjects() {
+      try {
+        this.projects = await db.projects.toArray();
+      }
+      catch (err) {
+        console.error(err);
+      }
     },
-    async addClient(client: Client){
+    async addClient(client: Client) {
       const newClient: Client = client;
-      if(!newClient.contacts){
+      if (!newClient.contacts) {
         newClient.contacts = [];
       }
-      try{
+      try {
         await db.clients.add(newClient);
         await this.loadClients();
         this.$q.notify({
@@ -42,14 +42,14 @@ export const useDBStore = defineStore('db-store', {
           position: 'bottom-right'
         })
       }
-      catch(err){
+      catch (err) {
         console.error(err)
       }
     },
-    getClientById(id: number): Client | undefined{
+    getClientById(id: number): Client | undefined {
       return this.clients.find(client => client.id === id);
     },
-    async updateClient(client: Client){
+    async updateClient(client: Client) {
       await db.clients.update(client.id, { ...client });
       await this.loadClients();
       this.$q.notify({
@@ -59,7 +59,7 @@ export const useDBStore = defineStore('db-store', {
         position: 'bottom-right'
       })
     },
-    async updateProject(project: Project){
+    async updateProject(project: Project) {
       await db.projects.update(project.id, { ...project });
       await this.loadProjects();
       this.$q.notify({
@@ -69,9 +69,9 @@ export const useDBStore = defineStore('db-store', {
         position: 'bottom-right'
       })
     },
-    async addProject(project: Project){
-      const newProject = {...project};
-      try{
+    async addProject(project: Project) {
+      const newProject = { ...project };
+      try {
         await db.projects.add(newProject);
         await this.loadProjects();
         this.$q.notify({
@@ -81,10 +81,27 @@ export const useDBStore = defineStore('db-store', {
           position: 'bottom-right'
         })
       }
-      catch(err){
+      catch (err) {
         console.error(err);
       }
-  },
+    },
+    async getTasksByProjectId(projectId: number) {
+      return await db.tasks.where({ projectId }).toArray();
+    },
+    async addTask(task: Task) {
+      try {
+        await db.tasks.add(task);
+        this.$q.notify({
+          message: 'Task added',
+          color: 'positive',
+          icon: 'check',
+          position: 'bottom-right'
+        })
+      }
+      catch (err) {
+        console.error(err)
+      }
+    }
   },
 });
 
